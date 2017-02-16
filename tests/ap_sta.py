@@ -5,15 +5,17 @@
 Test infrastructure sta/ap connectivity
 """
 
+import ipdb
 import wtf.node.ap as AP
 import unittest
 import time
 import wtf
 wtfconfig = wtf.conf
 
-AP_IP = "192.168.99.1"
-STA_IP = "192.168.99.2"
-
+AP_IP = "11.11.11.11"
+AP_NAME = "wlan0"
+STA_IP = "11.11.11.13"
+STA_NAME = "wlan1"
 
 def setUp(self):
     # start with all of the nodes initialized by idle
@@ -34,14 +36,15 @@ class TestAPSTA(unittest.TestCase):
         for n in wtfconfig.nodes:
             n.stop()
         # set IP addrs, stack doesn't care if iface goes up or down
-        wtfconfig.aps[0].set_ip(AP_IP)
-        wtfconfig.stas[0].set_ip(STA_IP)
+        wtfconfig.aps[0].set_ip(AP_NAME, AP_IP)
+        wtfconfig.stas[0].set_ip(STA_NAME, STA_IP)
 
     def startNodes(self):
         for n in wtfconfig.nodes:
             n.start()
 
     def pingTest(self):
+        ipdb.set_trace()
         self.failIf(wtfconfig.stas[0].ping(AP_IP, timeout=5).return_code != 0,
                     "Failed to ping AP at %s" % AP_IP)
 
@@ -61,6 +64,7 @@ class TestAPSTA(unittest.TestCase):
         self.pingTest()
 
     def test_scan(self):
+        ipdb.set_trace()
         wtfconfig.aps[0].config = AP.APConfig(ssid="wtf-scantest", channel=11)
         wtfconfig.aps[0].start()
         wtfconfig.stas[0].start()
@@ -79,14 +83,16 @@ class TestAPSTA(unittest.TestCase):
         self.failIf(r.channel != 11, "Expected wtf-scantest on channel 11")
 
     def test_open_associate(self):
+        ipdb.set_trace()
         wtfconfig.aps[0].config = AP.APConfig(ssid="wtf-assoctest", channel=6)
 
         self.startNodes()
         # give slow AP plenty of time to start
         time.sleep(5)
+        ipdb.set_trace()
         self.assocTest()
         self.pingTest()
-        self.throughput()
+        #self.throughput()
 
     def test_wpa_psk_tkip_assoc(self):
         wtfconfig.aps[0].config = AP.APConfig(ssid="wtf-wpatest",

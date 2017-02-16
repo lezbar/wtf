@@ -1,6 +1,7 @@
 # Copyright cozybit, Inc 2010-2011
 # All rights reserved
 
+import ipdb
 import textwrap
 
 import wtf.node as node
@@ -70,23 +71,24 @@ class Hostapd(node.LinuxNode, APBase):
 
     def __init__(self, comm, iface, ops=None):
         node.LinuxNode.__init__(self, comm, iface, ops=ops)
+        #ipdb.set_trace()
         self.config = None
 
     def start(self):
         # iface must be down before we can set type
         node.LinuxNode.stop(self)
-        self._cmd_or_die("iw " + self.iface[0].name + " set type __ap")
+        self._cmd_or_die("sudo iw " + self.iface[0].name + " set type __ap")
         node.LinuxNode.start(self)
         if not self.config:
             raise node.InsufficientConfigurationError()
         self._configure()
-        self._cmd_or_die("hostapd -B /tmp/hostapd.conf")
+        self._cmd_or_die("sudo hostapd -B /tmp/hostapd.conf")
 
     def stop(self):
         node.LinuxNode.stop(self)
-        self.comm.send_cmd("killall hostapd")
+        self.comm.send_cmd("sudo killall hostapd")
         self.comm.send_cmd("iw dev mon." + self.iface[0].name + " del")
-        self.comm.send_cmd("rm -f /var/run/hostapd/" + self.iface[0].name)
+        self.comm.send_cmd("sudo rm -f /var/run/hostapd/" + self.iface[0].name)
 
 # some of this stuff, like channel, ht_capab, and hw_mode are target-specific,
 # use 'iw <dev> list' to parse capabilities?

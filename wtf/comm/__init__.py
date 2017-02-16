@@ -2,7 +2,7 @@
 # All rights reserved
 
 import serial
-import fdpexpect
+import pexpect as fdpexpect
 import pxssh
 import commands
 import subprocess
@@ -213,9 +213,9 @@ class SSH(CommBase):
     get the return code.
     """
 
-    def __init__(self, ipaddr, user="root"):
+    def __init__(self, ipaddr, username="root", password="vagrant", port="22"):
         self.session = pxssh.pxssh()
-        self.session.login(ipaddr, user)
+        self.session.login(ipaddr, username, password, port)
         self.ipaddr = ipaddr
         CommBase.__init__(self)
 

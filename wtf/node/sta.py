@@ -1,6 +1,7 @@
 # Copyright cozybit, Inc 2010-2011
 # All rights reserved
 
+import ipdb
 import wtf.node as node
 import re
 import time
@@ -45,7 +46,8 @@ class LinuxSTA(node.LinuxNode, STABase):
 
     def start(self):
         node.LinuxNode.stop(self)
-        self._cmd_or_die("iw " + self.iface + " set type station")
+        ipdb.set_trace()
+        self._cmd_or_die("sudo iw " + self.iface[0].name + " set type station")
         node.LinuxNode.start(self)
 
     def stress(self, host):
@@ -57,12 +59,12 @@ class LinuxSTA(node.LinuxNode, STABase):
     def scan(self):
         # first perform the scan.  Try a few times because the device still may
         # be coming up.
-        (r, o) = self.comm.send_cmd("iwlist " +
-                                    self.iface + " scan", verbosity=2)
+        (r, o) = self.comm.send_cmd("sudo iwlist " +
+                                    self.iface[0].name + " scan", verbosity=2)
         count = 10
         while count != 0 and \
                 o[0].endswith("Interface doesn't support scanning : Device or resource busy"):
-            (r, o) = self.comm.send_cmd("iwlist " + self.iface + " scan")
+            (r, o) = self.comm.send_cmd("sudo iwlist " + self.iface + " scan")
             count = count - 1
         if count == 0:
             return []
@@ -98,18 +100,18 @@ class LinuxSTA(node.LinuxNode, STABase):
         return r
 
     def _open_assoc(self, ssid):
-        (r, _) = self.comm.send_cmd("iw " + self.iface + " connect " + ssid)
+        (r, _) = self.comm.send_cmd("sudo iw " + self.iface[0].name + " connect " + ssid)
         if r == 142:    # error code -114
             # operation already in progress, means we're already connected
             # or not ready, try again
             time.sleep(0.5)
-            self._cmd_or_die("iw " + self.iface + " connect " + ssid)
+            self._cmd_or_die("sudo iw " + self.iface[0].name + " connect " + ssid)
         elif r != 0:
             # something else went wrong
             raise node.ActionFailureError("iw failed with code %d" % r)
 
     def _secure_assoc(self, config="/tmp/sup.conf", sock_dir=None):
-        cmd = "wpa_supplicant -B -Dwext -i" + self.iface + " -c" + config
+        cmd = "sudo wpa_supplicant -B -Dwext -i" + self.iface + " -c" + config
         if sock_dir:
             cmd = cmd + " -C" + sock_dir
         self._cmd_or_die(cmd)
@@ -117,8 +119,8 @@ class LinuxSTA(node.LinuxNode, STABase):
     def _check_assoc(self, ssid):
         for _ in range(1, 30):
             time.sleep(0.5)
-            (r, o) = self.comm.send_cmd("iw " +
-                                        self.iface + " link", verbosity=2)
+            (r, o) = self.comm.send_cmd("sudo iw " +
+                                        self.iface[0].name + " link", verbosity=2)
             if r != 0:
                 raise node.ActionFailureError("iw failed with code %d" % r)
             if o[0] == "Not connected.":

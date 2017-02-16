@@ -158,7 +158,7 @@ class pxssh (spawn):
 
     # TODO: This is getting messy and I'm pretty sure this isn't perfect.
     # TODO: I need to draw a flow chart for this.
-    def login(self, server, username, password='', terminal_type='ansi', original_prompt=r"[#$]", login_timeout=10, port=None, auto_prompt_reset=True):
+    def login(self, server, username, password='', port=None, terminal_type='ansi', original_prompt=r"[#$]", login_timeout=10, auto_prompt_reset=True):
         """This logs the user into the given server. It uses the
         'original_prompt' to try to find the prompt right after login. When it
         finds the prompt it immediately tries to reset the prompt to something
@@ -188,7 +188,7 @@ class pxssh (spawn):
         if port is not None:
             ssh_options = ssh_options + ' -p %s' % (str(port))
         cmd = "ssh %s -l %s %s" % (ssh_options, username, server)
-
+        print "cmd: %s" % cmd
         # This does not distinguish between a remote server 'password' prompt
         # and a local ssh 'passphrase' prompt (for unlocking a private key).
         spawn._spawn(self, cmd)
@@ -206,6 +206,7 @@ class pxssh (spawn):
                 ["(?i)are you sure you want to continue connecting", original_prompt,
                  "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
         if i == 2:  # password or passphrase
+            print "password: %s" % password
             self.sendline(password)
             i = self.expect(
                 ["(?i)are you sure you want to continue connecting", original_prompt,

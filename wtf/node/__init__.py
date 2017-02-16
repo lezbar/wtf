@@ -3,6 +3,7 @@
 
 """WTF network node definitions."""
 
+import ipdb
 import os
 import time
 from collections import namedtuple
@@ -360,7 +361,7 @@ class Iface(object):
 
     def link_up(self):
         """Bring the nodes link up."""
-        self.node.comm.send_cmd("ip link set %s up" % (self.name))
+        self.node.comm.send_cmd("sudo ip link set %s up" % (self.name))
 
     def set_radio(self, state):
         """Turn on or off the radio"""
@@ -381,7 +382,7 @@ class Iface(object):
             raise UnsupportedConfigurationError(
                 "Iface driver not loadable with modprobe")
 
-        self.node._cmd_or_die("modprobe " + self.driver)
+        self.node._cmd_or_die("sudo modprobe " + self.driver)
 
 
 # allows commands to return either return code or stdout so the caller
@@ -404,7 +405,7 @@ class Mwl8787Iface(Iface):
             raise UnsupportedConfigurationError(
                 "Only the mwl8787_sdio driver is supported.")
 
-        self.node.comm.send_cmd("rmmod " + self.driver)
+        self.node.comm.send_cmd("sudo rmmod " + self.driver)
         cmd = "/system/bin/mwl8787_config.sh"
         self.node._cmd_or_die(cmd, verbosity=3)
         # give ifaces time to come up
@@ -449,13 +450,13 @@ class PlatformOps(object):
         filesystem.
 
         """
-
+        #ipdb.set_trace()
         if path is not None:
             self._comm.send_cmd("export PATH=" + path + ":$PATH:", verbosity=0)
 
         # who knows what was running on this machine before.  Be sure to kill
         # anything that might get in our way.
-        self._comm.send_cmd("killall hostapd; killall wpa_supplicant",
+        self._comm.send_cmd("sudo killall hostapd; sudo killall wpa_supplicant",
                             verbosity=0)
 
         # make sure debugfs is mounted
@@ -499,14 +500,18 @@ class LinuxNode(NodeBase):
     """
 
     def __init__(self, comm, ifaces=(), path=None, ops=None):
-        self._ops = PlatformOps(None)
+        self._ops = PlatformOps(comm)
         if ops is not None:
             self._ops = ops
         self.iface = list(ifaces)
+        #self.iface = ifaces
+        print "iface: %s" % self.iface
         for iface in self.iface:
             iface.node = self
         self.brif = None
+        #ipdb.set_trace()
         NodeBase.__init__(self, comm)
+        #ipdb.set_trace()
         self._ops.beforeInit(path)
 
     def init(self):
@@ -537,11 +542,11 @@ class LinuxNode(NodeBase):
         self.stop()
         for iface in self.iface:
             if iface.driver:
-                self.comm.send_cmd("modprobe -r " + iface.driver)
+                self.comm.send_cmd("sudo modprobe -r " + iface.driver)
                 if iface.cap:
                     iface.cap.monif = None
         # stop meshkitd in case it's installed
-        self.comm.send_cmd("/etc/init.d/meshkit stop")
+        # self.comm.send_cmd("/etc/init.d/meshkit stop")
         self.initialized = False
 
     def start(self):
@@ -560,17 +565,17 @@ class LinuxNode(NodeBase):
     def stop(self):
         """Stop the node: interface downed and interface deleted."""
         for iface in self.iface:
-            self.comm.send_cmd("ifconfig " + iface.name + " down")
+            self.comm.send_cmd("sudo ifconfig " + iface.name + " down")
         self.del_brif()
 
     def set_ip(self, name, ipaddr):
         """Set the node's IP address."""
-        self.comm.send_cmd("ifconfig " + name + " " + ipaddr + " up")
+        self.comm.send_cmd("sudo ifconfig " + name + " " + ipaddr + " up")
 
     def set_mcast(self, iface, mcast_route):
         """Set node's multicast route."""
         self.comm.send_cmd(
-            "route add -net %s netmask 255.255.255.255 %s"
+            "sudo route add -net %s netmask 255.255.255.255 %s"
             % (mcast_route, iface.name))
 
     def ping(self, host, timeout=3, count=1, verbosity=2, interval=1):
@@ -583,14 +588,14 @@ class LinuxNode(NodeBase):
 
     def if_down(self, iface):
         """Bring down node's network interface."""
-        self.comm.send_cmd("ifconfig " + iface + " down")
+        self.comm.send_cmd("sudo ifconfig " + iface + " down")
 
     def del_brif(self):
         """Delete node's bridge interface."""
         if not self.brif:
             return
         self.if_down(self.brif)
-        self.comm.send_cmd("brctl delbr " + self.brif)
+        self.comm.send_cmd("sudo brctl delbr " + self.brif)
 
     def bridge(self, ifaces, ip):
         """Bridge interfaces.
@@ -605,15 +610,15 @@ class LinuxNode(NodeBase):
         self.brif = bridge
         self._cmd_or_die("brctl addbr " + bridge)
         for iface in ifaces:
-            self.comm.send_cmd("ip addr flush " + iface.name)
+            self.comm.send_cmd("sudo ip addr flush " + iface.name)
             self._cmd_or_die("brctl addif %s %s " % (bridge, iface.name))
         self._cmd_or_die("ip link set br0 address %s" % (ifaces[0].mac))
         self.set_ip("br0", ip)
 
     def bond_reload(self):
         """Reload the "bonding" module."""
-        self.comm.send_cmd("modprobe -r bonding")
-        self.comm.send_cmd("modprobe bonding")
+        self.comm.send_cmd("sudo modprobe -r bonding")
+        self.comm.send_cmd("sudo modprobe bonding")
 
     def bond(self, ifaces, ip):
         """Bond interfaces in `ifaces` and assign `ip`."""
