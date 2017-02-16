@@ -46,7 +46,7 @@ class LinuxSTA(node.LinuxNode, STABase):
 
     def start(self):
         node.LinuxNode.stop(self)
-        ipdb.set_trace()
+        #ipdb.set_trace()
         self._cmd_or_die("sudo iw " + self.iface[0].name + " set type station")
         node.LinuxNode.start(self)
 
