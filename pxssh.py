@@ -103,7 +103,7 @@ class pxssh (spawn):
         # disable only SSH_ASKPASS without also disabling X11 forwarding.
         # Unsetting SSH_ASKPASS on the remote side doesn't disable it! Annoying!
         #self.SSH_OPTS = "-x -o'RSAAuthentication=no' -o 'PubkeyAuthentication=no'"
-        self.force_password = False
+        self.force_password = True
         self.auto_prompt_reset = True
 
     def levenshtein_distance(self, a, b):

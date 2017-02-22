@@ -6,7 +6,7 @@ import wtf.node.sta
 from wtf.node import PlatformOps
 
 #ipdb.set_trace()
-ap_ssh = wtf.comm.SSH(ipaddr="127.0.0.1", username="vagrant", port=2216)
+ap_ssh = wtf.comm.SSH(ipaddr="127.0.0.1", username="vagrant", port=2203)
 ap_ssh.name = "host-ap"
 ap_ssh.verbosity = 2
 #ipdb.set_trace()
@@ -18,7 +18,7 @@ ap = wtf.node.ap.Hostapd(ap_ssh, ap_iface)
 
 
 
-sta_ssh = wtf.comm.SSH(ipaddr="127.0.0.1", username="vagrant", port=2216)
+sta_ssh = wtf.comm.SSH(ipaddr="127.0.0.1", username="vagrant", port=2203)
 sta_ssh.name = "sta"
 sta_ssh.verbosity = 2
 sta_iface = []
