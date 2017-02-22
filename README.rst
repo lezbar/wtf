@@ -3,7 +3,7 @@ Introduction
 
 wtf is the "Wireless Test Framework".  It is a collection of test suites for
 validating various wifi functionality on various wifi devices.  wtf runs on an
-Ununtu Linux development machine and makes heavy use of python.
+Ubuntu Linux development machine and makes heavy use of python.
 
 Architecture?  Philosophy?  You decide.
 =======================================
@@ -32,41 +32,6 @@ bash command line utilities via openssh connections.  You write a test suite
 that ensures that the new STA parts successfully communicate with hostapd,
 debugging and releasing as you go.
 
-Now suppose that because you did such a fantastic job on the Fancypants driver,
-Fancypants' heavyweight customer MegaWorld wants to pay you solid money to make
-the driver work on their ancient embedded Linux distribution (AEL).  AEL uses
-busybox's sh instead of bash and dropbear ssh instead of openssh.  You want to
-reuse the tests that you wrote for the Fancypants project.  You think: "I know!
-I'll fork the tests and hack them to work with dropbear and sh."  Wrong answer!
-The correct answer is: "In know!  I'll inherit the linux STA node to create the
-busybox/sh node, and override the functions that don't work.  Next, I'll
-inherit the ssh com driver and override as necessary to work with dropbear."
-Correct!
-
-Because you chose to re-use your existing tests, the AEL port not only goes
-smoothly, it goes quickly.  MegaWorld management is so happy with your work
-that they send you for a week-long vacation in Hawaii using only a fraction of
-the money that you saved them.  And then they hire you to make ad-hoc mode work
-with AEL and the Fancypants wifi chip.  You humbly accept the job, and then
-think about how you will test this.  At first you say: "I know!  I'll fork the
-tests and hack them so that they test ad-hoc mode."  Wrong answer!  The correct
-answer is: "I know!  First I'll add suitable commands to start and stop ad-hoc
-mode to the busybox/sh node.  Then I'll make an ad-hoc mode test suite.  Oooh
-look!  I can factor out this iperf test from the STA-AP tests and share it with
-the ad-hoc mode test suite.  Fun!"  Be sure to document the new
-platform-independent ad-hoc API that you just introduced.
-
-MegaWorld cannot get enough!  They double your engineering budget and your
-co-worker Luisca joins the project.  Luisca has a PhD in bacterial networking,
-and you're not quite sure what it is that he is going to be doing.  But he
-needs a work environment similar to yours.  And his code is going in the same
-repository as yours.  And you want to ensure that he doesn't break your nice,
-stable contribution.  So you direct him to two places: the first is this
-README, so that he knows how to run the tests.  This diminishes the chance that
-he breaks your stuff.  You also direct him to the platform-specific bring-up
-instructions in platform/mega-world-ael/README, and to the sample wtfconf.py
-file in platform/mega-world-ael/.  Luisca is up and running with minimal help
-from you because he has everything he needs to duplicate your work.
 
 How to acutally use wtf
 =======================
