@@ -3,9 +3,8 @@
 import sys
 import getopt
 import os
-import nose
+import pytest
 import wtf
-
 
 def usage():
     print """
@@ -73,7 +72,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     print "Loading config file " + conf
-
     conf = conf.replace(".py", "")
     try:
         wtfconfig = __import__(conf)
@@ -96,19 +94,19 @@ if __name__ == '__main__':
         if not os.path.exists(suite):
             print "Test suite " + suite + " does not exist."
             sys.exit(1)
+        print "suite: %s" % suite
         args.append(suite)
 
     # Apply the args
-    if verbose:
-        args = args + ["-v"]
-    if stdio:
-        args = args + ["-s"]
+    # if verbose:
+    #     args = args + ["-v"]
+    # if stdio:
+    #     args = args + ["-s"]
 
     # Now run the tests
-    args.append('--with-xunit')
-    wtf.conf.setUp()
-    print "======================================================================"
+
+    print "===================================================================="
     print "Running " + wtf.conf.name
-    print "======================================================================"
-    nose.run(argv=["wtf.py"] + args)
-    wtf.conf.tearDown()
+    print "===================================================================="
+    pytest.main(['-x', '--pdb', '-v', '--junitxml=xml_test_login.xml',
+                 './tests/ap_sta.py'], plugins=[wtfconfig])

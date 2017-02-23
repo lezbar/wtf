@@ -1,7 +1,7 @@
 # Copyright cozybit, Inc 2010-2011
 # All rights reserved
 
-import ipdb
+import pytest
 import textwrap
 
 import wtf.node as node
@@ -48,6 +48,7 @@ class APConfig():
 
     def __init__(self, ssid, channel=11, band='g', security=None, auth=None,
                  password=None, encrypt=None):
+        #pytest.set_trace()
         self.ssid = ssid
         self.band = band
         self.channel = channel
@@ -71,7 +72,6 @@ class Hostapd(node.LinuxNode, APBase):
 
     def __init__(self, comm, iface, ops=None):
         node.LinuxNode.__init__(self, comm, iface, ops=ops)
-        #ipdb.set_trace()
         self.config = None
 
     def start(self):

@@ -3,7 +3,7 @@
 
 """WTF network node definitions."""
 
-import ipdb
+import pytest
 import os
 import time
 from collections import namedtuple
@@ -450,7 +450,6 @@ class PlatformOps(object):
         filesystem.
 
         """
-        #ipdb.set_trace()
         if path is not None:
             self._comm.send_cmd("export PATH=" + path + ":$PATH:", verbosity=0)
 
@@ -509,14 +508,13 @@ class LinuxNode(NodeBase):
         for iface in self.iface:
             iface.node = self
         self.brif = None
-        #ipdb.set_trace()
+        #pytest.set_trace()
         NodeBase.__init__(self, comm)
-        #ipdb.set_trace()
         self._ops.beforeInit(path)
 
     def init(self):
         """Initialize the node, including network interfaces."""
-
+        #pytest.set_trace()
         for iface in self.iface:
             if not iface.enable:
                 continue
@@ -550,7 +548,8 @@ class LinuxNode(NodeBase):
         self.initialized = False
 
     def start(self):
-        """Start the node: brind up interfaces, set address."""
+        """Start the node: bring up interfaces, set address."""
+        #pytest.set_trace()
         if not self.initialized:
             raise UninitializedError()
         for iface in self.iface:

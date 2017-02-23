@@ -5,7 +5,7 @@
 Test infrastructure sta/ap connectivity
 """
 
-import ipdb
+import pytest
 import wtf.node.ap as AP
 import unittest
 import time
@@ -17,14 +17,14 @@ AP_NAME = "wlan0"
 STA_IP = "11.11.11.13"
 STA_NAME = "wlan1"
 
-def setUp(self):
+def setup_module(module):
     # start with all of the nodes initialized by idle
+    #pytest.set_trace()
     for n in wtfconfig.nodes:
         n.shutdown()
         n.init()
 
-
-def tearDown(self):
+def teardown_module(module):
     for n in wtfconfig.nodes:
         n.stop()
 
@@ -32,6 +32,7 @@ def tearDown(self):
 class TestAPSTA(unittest.TestCase):
 
     def setUp(self):
+        #pytest.set_trace()
         # start with all of the nodes stopped
         for n in wtfconfig.nodes:
             n.stop()
@@ -44,7 +45,6 @@ class TestAPSTA(unittest.TestCase):
             n.start()
 
     def pingTest(self):
-        #ipdb.set_trace()
         self.failIf(wtfconfig.stas[0].ping(AP_IP, timeout=5).return_code != 0,
                     "Failed to ping AP at %s" % AP_IP)
 
@@ -64,7 +64,6 @@ class TestAPSTA(unittest.TestCase):
         self.pingTest()
 
     def test_scan(self):
-        #ipdb.set_trace()
         wtfconfig.aps[0].config = AP.APConfig(ssid="wtf-scantest", channel=11)
         wtfconfig.aps[0].start()
         wtfconfig.stas[0].start()
@@ -83,13 +82,12 @@ class TestAPSTA(unittest.TestCase):
         self.failIf(r.channel != 11, "Expected wtf-scantest on channel 11")
 
     def test_open_associate(self):
-        #ipdb.set_trace()
+        #pytest.set_trace()
         wtfconfig.aps[0].config = AP.APConfig(ssid="wtf-assoctest", channel=6)
-
+        #pytest.set_trace()
         self.startNodes()
         # give slow AP plenty of time to start
         time.sleep(5)
-        #ipdb.set_trace()
         self.assocTest()
         self.pingTest()
         #self.throughput()

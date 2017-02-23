@@ -1,15 +1,12 @@
-import ipdb
 import wtf
 import wtf.node.ap
 import wtf.comm
 import wtf.node.sta
 from wtf.node import PlatformOps
 
-#ipdb.set_trace()
 ap_ssh = wtf.comm.SSH(ipaddr="127.0.0.1", username="vagrant", port=2203)
 ap_ssh.name = "host-ap"
 ap_ssh.verbosity = 2
-#ipdb.set_trace()
 
 ap_iface = []
 # iface + ip
@@ -26,5 +23,4 @@ sta_iface = []
 sta_iface.append(wtf.node.Iface(name="wlan1", driver="mac80211_hwsim", ip="11.11.11.13"))
 
 sta = wtf.node.sta.LinuxSTA(sta_ssh, sta_iface)
-
 wtf.conf = wtf.config("ap_sta", nodes=[ap, sta], name="hostapd as AP tests")
